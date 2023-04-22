@@ -9,6 +9,6 @@ userRoute.get('/users', getUsers);
 userRoute.get('/users/:userId', getUser);
 userRoute.post('/users', createUser);
 userRoute.patch('/users/me', updateProfile);
-userRoute.patch('/users/avatar', updateAvatar);
+userRoute.patch('/users/me/avatar', updateAvatar);
 
 module.exports = userRoute;
