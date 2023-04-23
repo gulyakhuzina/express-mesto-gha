@@ -1,6 +1,8 @@
 const User = require('../models/user');
 const handleErrors = require('./handleErrors');
 
+const OK = 201;
+
 const getUsers = (req, res) => {
   User.find()
     .then((users) => {
@@ -27,7 +29,7 @@ const createUser = (req, res) => {
   const { name, avatar, about } = req.body;
   User.create({ name, avatar, about })
     .then((user) => {
-      res.status(201).send({ data: user });
+      res.status(OK).send({ data: user });
     })
     .catch((err) => {
       handleErrors(err, res);
