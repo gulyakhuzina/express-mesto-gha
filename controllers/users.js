@@ -1,63 +1,80 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const handleErrors = require('./handleErrors');
 
 const OK = 201;
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find()
     .then((users) => {
       res.send({ data: users });
     })
-    .catch((err) => {
-      handleErrors(err, res);
-    });
+    .catch(next);
 };
 
-const getUser = (req, res) => {
+const getUser = (req, res, next) => {
   const { userId } = req.params;
   User.findById(userId)
     .orFail()
     .then((user) => {
       res.send({ data: user });
     })
-    .catch((err) => {
-      handleErrors(err, res);
-    });
+    .catch(next);
 };
 
-const createUser = (req, res) => {
-  const { name, avatar, about } = req.body;
-  User.create({ name, avatar, about })
+const createUser = (req, res, next) => {
+  const {
+    name, avatar, about, email, password,
+  } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name, avatar, about, email, password: hash,
+    }))
     .then((user) => {
       res.status(OK).send({ data: user });
     })
-    .catch((err) => {
-      handleErrors(err, res);
-    });
+    .catch(next);
 };
 
-const updateProfile = (req, res) => {
+const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .orFail()
     .then((user) => {
       res.send({ data: user });
     })
-    .catch((err) => {
-      handleErrors(err, res);
-    });
+    .catch(next);
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .orFail()
     .then((user) => {
       res.send({ data: user });
     })
-    .catch((err) => {
-      handleErrors(err, res);
-    });
+    .catch(next);
+};
+
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      res.set('authorization', `Bearer ${token}`);
+      res.send({ token });
+    })
+    .catch(next);
+};
+
+const getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .orFail()
+    .then((user) => {
+      res.send({ data: user });
+    })
+    .catch(next);
 };
 
 module.exports = {
@@ -66,4 +83,6 @@ module.exports = {
   createUser,
   updateProfile,
   updateAvatar,
+  login,
+  getCurrentUser,
 };

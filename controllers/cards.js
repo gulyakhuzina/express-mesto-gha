@@ -1,7 +1,9 @@
 const Card = require('../models/card');
-const handleErrors = require('./handleErrors');
+const ForbiddenError = require('../errors/forbidden-err');
 
-const setLikes = (req, res, setFunction) => {
+const OK = 201;
+
+const setLikes = (req, res, setFunction, next) => {
   const { cardId } = req.params;
   Card.findByIdAndUpdate(
     cardId,
@@ -13,53 +15,52 @@ const setLikes = (req, res, setFunction) => {
     .then((card) => {
       res.send({ data: card });
     })
-    .catch((err) => {
-      handleErrors(err, res);
-    });
+    .catch(next);
 };
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find()
     .populate(['owner', 'likes'])
     .then((cards) => {
       res.send({ data: cards });
     })
-    .catch((err) => {
-      handleErrors(err, res);
-    });
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => card.populate(['owner', 'likes']))
     .then((card) => {
-      res.status(201).send({ data: card });
+      res.status(OK).send({ data: card });
     })
-    .catch((err) => {
-      handleErrors(err, res);
-    });
+    .catch(next);
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
-  Card.findByIdAndRemove(cardId)
+  Card.findById(cardId)
     .orFail()
-    .populate(['owner', 'likes'])
     .then((card) => {
-      res.send({ data: card });
+      if (card.owner._id.toString() === req.user._id) {
+        Card.findByIdAndRemove(cardId)
+          .orFail()
+          .populate(['owner', 'likes'])
+          .then((post) => {
+            res.send({ data: post });
+          })
+          .catch(next);
+      } else throw new ForbiddenError('Доступ запрещен');
     })
-    .catch((err) => {
-      handleErrors(err, res);
-    });
+    .catch(next);
 };
 
-const likeCard = (req, res) => {
-  setLikes(req, res, { $addToSet: { likes: req.user._id } });
+const likeCard = (req, res, next) => {
+  setLikes(req, res, { $addToSet: { likes: req.user._id } }, next);
 };
 
-const dislikeCard = (req, res) => {
-  setLikes(req, res, { $pull: { likes: req.user._id } });
+const dislikeCard = (req, res, next) => {
+  setLikes(req, res, { $pull: { likes: req.user._id } }, next);
 };
 
 module.exports = {
