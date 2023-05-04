@@ -11,7 +11,7 @@ cardRoute.post('/', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     // eslint-disable-next-line no-useless-escape
-    link: Joi.string().required().regex(/https?:\/\/w{0,3}[\w\-\.~:/?#\[\]@!$&'\(\)*\+,;=]*\#?$/gmi),
+    link: Joi.string().required().regex(/https?:\/\/w{0,3}[\w\-\.~:/?#\[\]@!$&'\(\)*\+,;=]*\#?$/mi),
   }),
 }), createCard);
 cardRoute.delete('/:cardId', deleteCard);
