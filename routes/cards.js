@@ -14,8 +14,20 @@ cardRoute.post('/', celebrate({
     link: Joi.string().required().regex(/https?:\/\/w{0,3}[\w\-\.~:/?#\[\]@!$&'\(\)*\+,;=]*\#?$/mi),
   }),
 }), createCard);
-cardRoute.delete('/:cardId', deleteCard);
-cardRoute.put('/:cardId/likes', likeCard);
-cardRoute.delete('/:cardId/likes', dislikeCard);
+cardRoute.delete('/:cardId', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().alphanum().length(24),
+  }),
+}), deleteCard);
+cardRoute.put('/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().alphanum().length(24),
+  }),
+}), likeCard);
+cardRoute.delete('/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().alphanum().length(24),
+  }),
+}), dislikeCard);
 
 module.exports = cardRoute;

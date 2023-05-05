@@ -8,7 +8,11 @@ const {
 
 userRoute.get('/', getUsers);
 userRoute.get('/me', getCurrentUser);
-userRoute.get('/:userId', getUser);
+userRoute.get('/:userId', celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().alphanum().length(24),
+  }),
+}), getUser);
 userRoute.patch('/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
