@@ -4,8 +4,8 @@ const User = require('../models/user');
 
 const OK = 201;
 
-function findById(req, res, next) {
-  User.findById(req.user._id)
+function findById(req, res, next, userId) {
+  User.findById(userId)
     .orFail()
     .then((user) => {
       res.send({ data: user });
@@ -31,7 +31,8 @@ const getUsers = (req, res, next) => {
 };
 
 const getUser = (req, res, next) => {
-  findById(req, res, next);
+  const { userId } = req.params;
+  findById(req, res, next, userId);
 };
 
 const createUser = (req, res, next) => {
@@ -71,7 +72,8 @@ const login = (req, res, next) => {
 };
 
 const getCurrentUser = (req, res, next) => {
-  findById(req, res, next);
+  const userId = req.user._id;
+  findById(req, res, next, userId);
 };
 
 module.exports = {
