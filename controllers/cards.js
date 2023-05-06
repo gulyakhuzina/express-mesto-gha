@@ -41,15 +41,11 @@ const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   Card.findById(cardId)
     .orFail()
+    .populate(['owner', 'likes'])
     .then((card) => {
       if (card.owner._id.toString() === req.user._id) {
-        Card.findByIdAndRemove(cardId)
-          .orFail()
-          .populate(['owner', 'likes'])
-          .then((post) => {
-            res.send({ data: post });
-          })
-          .catch(next);
+        card.deleteOne();
+        res.send({ data: card });
       } else throw new ForbiddenError('Доступ запрещен');
     })
     .catch(next);

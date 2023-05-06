@@ -4,6 +4,24 @@ const User = require('../models/user');
 
 const OK = 201;
 
+function findById(req, res, next) {
+  User.findById(req.user._id)
+    .orFail()
+    .then((user) => {
+      res.send({ data: user });
+    })
+    .catch(next);
+}
+
+function updateInfo(req, res, next, info) {
+  User.findByIdAndUpdate(req.user._id, info, { new: true, runValidators: true })
+    .orFail()
+    .then((user) => {
+      res.send({ data: user });
+    })
+    .catch(next);
+}
+
 const getUsers = (req, res, next) => {
   User.find()
     .then((users) => {
@@ -13,13 +31,7 @@ const getUsers = (req, res, next) => {
 };
 
 const getUser = (req, res, next) => {
-  const { userId } = req.params;
-  User.findById(userId)
-    .orFail()
-    .then((user) => {
-      res.send({ data: user });
-    })
-    .catch(next);
+  findById(req, res, next);
 };
 
 const createUser = (req, res, next) => {
@@ -38,22 +50,12 @@ const createUser = (req, res, next) => {
 
 const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .orFail()
-    .then((user) => {
-      res.send({ data: user });
-    })
-    .catch(next);
+  updateInfo(req, res, next, { name, about });
 };
 
 const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .orFail()
-    .then((user) => {
-      res.send({ data: user });
-    })
-    .catch(next);
+  updateInfo(req, res, next, { avatar });
 };
 
 const login = (req, res, next) => {
@@ -69,12 +71,7 @@ const login = (req, res, next) => {
 };
 
 const getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id)
-    .orFail()
-    .then((user) => {
-      res.send({ data: user });
-    })
-    .catch(next);
+  findById(req, res, next);
 };
 
 module.exports = {

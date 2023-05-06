@@ -10,7 +10,7 @@ userRoute.get('/', getUsers);
 userRoute.get('/me', getCurrentUser);
 userRoute.get('/:userId', celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().alphanum().length(24),
+    userId: Joi.string().required().hex().length(24),
   }),
 }), getUser);
 userRoute.patch('/me', celebrate({
@@ -22,7 +22,7 @@ userRoute.patch('/me', celebrate({
 userRoute.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
     // eslint-disable-next-line no-useless-escape
-    avatar: Joi.string().regex(/https?:\/\/w{0,3}[\w\-\.~:/?#\[\]@!$&'\(\)*\+,;=]*\#?$/mi),
+    avatar: Joi.string().required().regex(/https?:\/\/w{0,3}[\w\-\.~:/?#\[\]@!$&'\(\)*\+,;=]*\#?$/mi),
   }),
 }), updateAvatar);
 

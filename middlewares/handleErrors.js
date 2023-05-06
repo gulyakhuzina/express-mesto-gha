@@ -3,8 +3,6 @@ const { default: mongoose } = require('mongoose');
 const {
   DocumentNotFoundError, CastError, ValidationError,
 } = mongoose.Error;
-const AuthorizedError = require('../errors/auth-err');
-const ForbiddenError = require('../errors/forbidden-err');
 
 const ERROR_BAD_REQUEST = 400;
 const ERROR_NOT_FOUND = 404;
@@ -24,7 +22,7 @@ const handleErrors = (err, req, res, next) => {
       .map((error) => error.message)
       .join('; ');
     res.status(ERROR_BAD_REQUEST).send({ message });
-  } else if (err instanceof AuthorizedError || err instanceof ForbiddenError) {
+  } else if (err.statusCode === 401 || err.statusCode === 403) {
     res.status(err.statusCode).send({ message: err.message });
   } else {
     res.status(ERROR_SERVER).send({ message: `Что-то пошло не так: ${err.message}` });

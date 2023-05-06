@@ -5,8 +5,7 @@ const mongoose = require('mongoose');
 
 const { PORT = 3000 } = process.env;
 const { celebrate, Joi, errors } = require('celebrate');
-const userRoute = require('./routes/users');
-const cardRoute = require('./routes/cards');
+const { userRoute, cardRoute } = require('./routes/index');
 const {
   createUser, login,
 } = require('./controllers/users');
@@ -14,6 +13,8 @@ const auth = require('./middlewares/auth');
 const handleErrors = require('./middlewares/handleErrors');
 
 const ERROR_NOT_FOUND = 404;
+// eslint-disable-next-line no-useless-escape
+const reg = /https?:\/\/w{0,3}[\w\-\.~:/?#\[\]@!$&'\(\)*\+,;=]*\#?$/mi;
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', { useNewUrlParser: true });
 
@@ -29,8 +30,7 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    // eslint-disable-next-line no-useless-escape
-    avatar: Joi.string().regex(/https?:\/\/w{0,3}[\w\-\.~:/?#\[\]@!$&'\(\)*\+,;=]*\#?$/mi),
+    avatar: Joi.string().regex(reg),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
