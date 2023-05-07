@@ -11,8 +11,8 @@ const {
 } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const handleErrors = require('./middlewares/handleErrors');
+const NotFoundError = require('./errors/not_found_err');
 
-const ERROR_NOT_FOUND = 404;
 // eslint-disable-next-line no-useless-escape
 const reg = /https?:\/\/w{0,3}[\w\-\.~:/?#\[\]@!$&'\(\)*\+,;=]*\#?$/mi;
 
@@ -41,9 +41,7 @@ app.use(auth);
 app.use('/users', auth, userRoute);
 app.use('/cards', auth, cardRoute);
 
-app.use('*', (req, res) => {
-  res.status(ERROR_NOT_FOUND).send({ message: 'Страница не найдена' });
-});
+app.use('*', (req, res, next) => next(new NotFoundError('Страница не найдена')));
 
 app.use(errors());
 

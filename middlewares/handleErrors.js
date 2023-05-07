@@ -22,7 +22,7 @@ const handleErrors = (err, req, res, next) => {
       .map((error) => error.message)
       .join('; ');
     res.status(ERROR_BAD_REQUEST).send({ message });
-  } else if (err.statusCode === 401 || err.statusCode === 403) {
+  } else if (err.statusCode) {
     res.status(err.statusCode).send({ message: err.message });
   } else {
     res.status(ERROR_SERVER).send({ message: `Что-то пошло не так: ${err.message}` });
